@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 
-from collections import defaultdict
-
 from .channels import BaseChannel
 from .devices import BaseDevice
 from .utils import *
@@ -17,23 +15,23 @@ class Simulator(object):
         self.devices = devices
 
         self.next_timestamp = 0
-        self.messages_to_insert = defaultdict(list)
+        self.messages_to_insert = defaultdict(messages_dict)
         self.device_positions = {}
 
     def step(self):
-        messages_received = defaultdict(list)
+        messages_received = messages_dict()
         for channel in self.channels:
             device_messages = channel.step(
                 self.next_timestamp, self.messages_to_insert[channel.id],
                 self.device_positions)
-            dict_merge_update(messages_received, device_messages)
+            dict_list_merge_update(messages_received, device_messages)
 
-        self.messages_to_insert = defaultdict(list)
+        self.messages_to_insert = defaultdict(messages_dict)
         for device in self.devices:
-            channel_messages, position = \
+            channel_messages, self.device_positions[device.id] = \
                 device.step(self.next_timestamp, messages_received[device.id])
-            dict_merge_update(self.messages_to_insert, channel_messages)
-            self.device_positions[device.id] = position
+            for channel_id, messages in channel_messages:
+                self.messages_to_insert[channel_id][device.id].extend(messages)
 
         self.next_timestamp += self.step_size
 

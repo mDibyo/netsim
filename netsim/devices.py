@@ -7,8 +7,6 @@ from typing import Tuple
 from .utils import *
 
 
-
-
 class AbstractDevice(Identifiable, metaclass=ABCMeta):
     @abstractmethod
     def step(self, timestamp: int, messages_received: List[Message]) \
