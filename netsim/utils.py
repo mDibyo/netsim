@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 
-from collections import defaultdict, namedtuple, Hashable
+from collections import defaultdict, Hashable, namedtuple
+from math import sqrt
 from typing import DefaultDict, Any, Dict, List
 
 
@@ -24,9 +25,18 @@ def dict_list_merge_update(d: DefaultDict[Any, list], other: Dict[Any, list]) \
 
 
 Message = object
-DevicePosition = namedtuple('DevicePosition', ['x', 'y'])
-origin = DevicePosition(0, 0)
 
+
+class Position(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def distance_from(self, other: 'Position'):
+        return sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
+
+
+origin = Position(0, 0)
 
 MessagesDict = Dict[str, List[Message]]
 
@@ -34,3 +44,21 @@ MessagesDict = Dict[str, List[Message]]
 def messages_dict() -> MessagesDict:
     return defaultdict(list)
 
+
+class MessagePropagation(object):
+    __slots__ = ['message', 'origin_position', 'propagation']
+
+    def __init__(self, message, origin_position):
+        self.message = message  # type: Message
+        self.origin_position = origin_position  # type: Position
+        self.propagation = 0.0  # type: float
+
+
+__all__ = [
+    Identifiable,
+    dict_list_merge_update,
+    Message,
+    Position, origin,
+    MessagesDict, messages_dict
+    MessagePropagation
+]

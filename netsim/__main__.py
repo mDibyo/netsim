@@ -14,7 +14,7 @@ class Simulator(object):
         self.channels = channels
         self.devices = devices
 
-        self.next_timestamp = 0
+        self.next_timestamp = 0  # type: int
         self.messages_to_insert = defaultdict(messages_dict)
         self.device_positions = {}
 
