@@ -19,12 +19,14 @@ class Simulator(object):
         self.device_positions = {}
 
     def step(self):
-        messages_received = messages_dict()
+        # messages_received = messages_dict()
+        messages_received = defaultdict(messages_dict)
         for channel in self.channels:
             device_messages = channel.step(
                 self.next_timestamp, self.messages_to_insert[channel.id],
                 self.device_positions)
-            dict_list_merge_update(messages_received, device_messages)
+            for device_id, messages in device_messages:
+                messages_received[device_id][channel.id].extend(messages)
 
         self.messages_to_insert = defaultdict(messages_dict)
         for device in self.devices:
