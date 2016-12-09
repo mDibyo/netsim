@@ -78,3 +78,28 @@ def StaticOriginPingDeviceFactory(channel_id: str):
             return {channel_id: [0]}, origin
 
     return StaticOriginPingDevice
+
+
+class Simulator(object):
+    def __init__(self, step_size: float, channels: List[BaseChannel],
+                 devices: List[BaseDevice]):
+        self.step_size = step_size
+
+        self.channels = channels
+        self.devices = devices
+
+        self.next_timestamp = 0
+        self.messages_to_insert = defaultdict(list)
+
+    def step(self):
+        messages_received = []
+        for channel in self.channels:
+            messages_received.extend(channel.step(
+                self.next_timestamp, self.messages_to_insert[channel.id]))
+
+        self.messages_to_insert = defaultdict(list)
+        for device in self.devices:
+            channel_messages_dict, _ = \
+                device.step(self.next_timestamp, messages_received)
+
+        self.next_timestamp += self.step_size
