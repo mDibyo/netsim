@@ -13,4 +13,4 @@ trim_trailing_whitespace = true
 # PEP-8 guidelines
 [*.py]
 indent_size = 4
-continuation_indent_size = 4
+continuation_indent_size = 8

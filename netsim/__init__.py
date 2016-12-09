@@ -1,79 +1,11 @@
 #!/usr/bin/env python3
 
 
-from collections import defaultdict, namedtuple, Hashable
-from abc import ABCMeta, abstractmethod
-from typing import Any, List, Tuple, Dict, DefaultDict
+from collections import defaultdict
 
-
-DevicePosition = namedtuple('DevicePosition', ['x', 'y'])
-origin = DevicePosition(0, 0)
-Message = object
-DeviceMessagesDict = Dict[str, List[Message]]
-
-
-class Identifiable(Hashable):
-    def __init__(self, id_: str):
-        self.id = id_
-
-    def __hash__(self):
-        return self.id
-
-    def __str__(self):
-        return '{class_} {id}'.format(class_=self.__class__, id=self.id)
-
-
-class AbstractChannel(Identifiable, metaclass=ABCMeta):
-    @abstractmethod
-    def step(self, timestamp: int, messages_inserted: List[Message],
-             device_locations: Dict[str, DevicePosition]) -> DeviceMessagesDict:
-        pass
-
-
-class BaseChannel(AbstractChannel):
-    def step(self, timestamp: int, messages_inserted: List[Message],
-             device_locations: Dict[str, DevicePosition]) -> DeviceMessagesDict:
-        return {device_id: messages_inserted for device_id in device_locations}
-
-
-class ImmediateIdentityChannel(BaseChannel):
-    pass
-
-
-ChannelMessagesDict = Dict[str, List[Message]]
-
-
-def dict_merge_update(d: DefaultDict[Any, list], other: Dict[Any, list]) \
-        -> DefaultDict[Any, list]:
-    for channel_id, messages in other.items():
-        d[channel_id].extend(messages)
-    return d
-
-
-class AbstractDevice(Identifiable, metaclass=ABCMeta):
-    @abstractmethod
-    def step(self, timestamp: int, messages_received: List[Message]) \
-            -> Tuple[ChannelMessagesDict, DevicePosition]:
-        pass
-
-
-class BaseDevice(AbstractDevice):
-    def step(self, timestamp: int, messages_received: List[Message]) \
-            -> Tuple[ChannelMessagesDict, DevicePosition]:
-        return {}, origin
-
-
-class StaticOriginBlackHoleDevice(BaseDevice):
-    pass
-
-
-def StaticOriginPingDeviceFactory(channel_id: str):
-    class StaticOriginPingDevice(BaseDevice):
-        def step(self, timestamp: int, messages_received: List[Message]) \
-                -> Tuple[ChannelMessagesDict, DevicePosition]:
-            return {channel_id: [0]}, origin
-
-    return StaticOriginPingDevice
+from .channels import BaseChannel
+from .devices import BaseDevice
+from .utils import *
 
 
 class Simulator(object):
@@ -104,3 +36,13 @@ class Simulator(object):
             self.device_positions[device.id] = position
 
         self.next_timestamp += self.step_size
+
+    def run(self, till):
+        while self.next_timestamp <= till:
+            self.step()
+
+
+if __name__ == '__main__':
+    simulator = Simulator(0.000001, [], [])
+    simulator.run(1)
+
