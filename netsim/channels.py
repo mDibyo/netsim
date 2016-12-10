@@ -31,27 +31,36 @@ class PropagatingChannel(BaseChannel):
         super(PropagatingChannel, self).__init__(id_)
 
         self.propagation_speed = propagation_speed # type: float
-        self.device_locations = {}  # type: Dict[str, Position]
+        self.device_positions = {}  # type: Dict[str, Position]
         self.message_propagations = []  # type: List[MessagePropagation]
         self.prev_timestamp = 0  # type: float
 
     def step(self, timestamp: float, devices_messages_inserted: MessagesDict,
-             new_device_locations: Dict[str, Position]) -> MessagesDict:
-        old_device_locations = self.device_locations
-        self.device_locations = {}\
+             new_device_positions: Dict[str, Position]) -> MessagesDict:
+        old_device_locations = self.device_positions
+        self.device_positions = {}\
             .update(old_device_locations)\
             .update(old_device_locations)
 
         message_to_receive = messages_dict()
-        for propagation in self.message_propagations:
-            # TODO(dibyo): Implement message propagation.
-            print(propagation.message)
+        for message_propagation in self.message_propagations:
+            prev_propagation = message_propagation.propagation
+            message_propagation.step(timestamp)
+            for device_id, position in self.device_positions:
+                distance = \
+                    position.distance_from(message_propagation.origin_position)
+                if prev_propagation < distance <= message_propagation.propagation:
+                    message_to_receive[device_id].append(message_propagation.message)
 
+        self.prev_timestamp = timestamp
         for device_id, messages in devices_messages_inserted.items():
-            assert device_id in self.device_locations
+            assert device_id in self.device_positions
 
-            self.message_propagations.extend(
-                MessagePropagation(m, self.device_locations[device_id], timestamp)
-                for m in messages)
+            self.message_propagations.extend(MessagePropagation(
+                self.propagation_speed,
+                m,
+                self.device_positions[device_id],
+                timestamp
+            ) for m in messages)
 
         return message_to_receive

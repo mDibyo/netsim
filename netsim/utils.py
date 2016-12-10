@@ -46,12 +46,26 @@ def messages_dict() -> MessagesDict:
 
 
 class MessagePropagation(object):
-    __slots__ = ['message', 'origin_position', 'propagation']
+    __slots__ = [
+        'propagation_speed',
+        'message',
+        'origin_position',
+        'timestamp',
+        'propagation'
+    ]
 
-    def __init__(self, message, origin_position):
+    def __init__(self, propagation_speed: float, message: Message,
+                 origin_position: Position, timestamp: float):
+        self.propagation_speed = propagation_speed  # type: float
         self.message = message  # type: Message
         self.origin_position = origin_position  # type: Position
-        self.propagation = 0.0  # type: float
+        self.timestamp = timestamp  # timestamp: float
+        self.propagation = 0  # type: float
+
+    def step(self, timestamp: float):
+        self.propagation += (timestamp - self.timestamp) \
+                            * self.propagation_speed
+        self.timestamp = timestamp
 
 
 __all__ = [
@@ -59,6 +73,6 @@ __all__ = [
     dict_list_merge_update,
     Message,
     Position, origin,
-    MessagesDict, messages_dict
+    MessagesDict, messages_dict,
     MessagePropagation
 ]
