@@ -21,9 +21,15 @@ class BaseDevice(AbstractDevice):
         return {}, origin
 
 
-class StaticPingDevice(BaseDevice):
-    def __init__(self, id_, channel_id, position: Position):
-        super(StaticPingDevice, self).__init__(id_)
+class LoggingDevice(BaseDevice):
+    def __init__(self, id_, logger):
+        super(LoggingDevice, self).__init__(id_)
+        self.logger = logger
+
+
+class StaticPingDevice(LoggingDevice):
+    def __init__(self, id_, logger, channel_id, position: Position):
+        super(StaticPingDevice, self).__init__(id_, logger)
 
         self.channel_id = channel_id
         self.position = position
@@ -39,9 +45,10 @@ class StaticPingDevice(BaseDevice):
 
 
 class StaticLocationTriangulatingDevice(StaticPingDevice):
-    def __init__(self, id_, channel_id, position,
+    def __init__(self, id_, logger, channel_id, position,
                  propagation_speed):
-        super(StaticLocationTriangulatingDevice, self).__init__(id_, channel_id, position)
+        super(StaticLocationTriangulatingDevice, self).__init__(id_, logger,
+                                                                channel_id, position)
 
         self.propagation_speed = propagation_speed
         self.all_messages = []
