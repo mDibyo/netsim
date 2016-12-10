@@ -6,12 +6,14 @@
 from math import sqrt
 
 
-EPSILON = 0.000001
+EPSILON = 0.1
 triangulate_output_format = 'INTERSECTION Circle1 AND Circle2 AND Circle3: ({}, {})'
 BAD_RESULT = None
 
 
 def triangulate(x0, y0, r0, x1, y1, r1, x2, y2, r2):
+    # print(x0, y0, r0, x1, y1, r1, x2, y2, r2)
+
     # dx and dy are the vertical and horizontal distances between the circle centers.
     dx = x1 - x0
     dy = y1 - y0
@@ -56,4 +58,4 @@ def triangulate(x0, y0, r0, x1, y1, r1, x2, y2, r2):
         return BAD_RESULT
 
 
-triangulate(1, 1, 1.41421356237, 0, 1, 1, 1, 0, 1)
+# triangulate(1, 1, 1.41421356237, 0, 1, 1, 1, 0, 1)

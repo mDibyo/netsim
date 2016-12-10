@@ -28,10 +28,11 @@ class ImmediateIdentityChannel(BaseChannel):
 
 
 class PropagatingIdentityChannel(BaseChannel):
-    def __init__(self, id_, propagation_speed):
+    def __init__(self, id_, propagation_speed, range=1.5):
         super(PropagatingIdentityChannel, self).__init__(id_)
 
         self.propagation_speed = propagation_speed # type: float
+        self.range = range
         self.device_positions = {}  # type: Dict[str, Position]
         self.message_propagations = []  # type: List[MessagePropagation]
         self.prev_timestamp = 0  # type: float
@@ -41,6 +42,7 @@ class PropagatingIdentityChannel(BaseChannel):
         self.device_positions.update(new_device_positions)
 
         message_to_receive = messages_dict()
+        next_message_propagations = []
         for message_propagation in self.message_propagations:
             prev_propagation = message_propagation.propagation
             message_propagation.step(timestamp)
@@ -49,6 +51,9 @@ class PropagatingIdentityChannel(BaseChannel):
                     position.distance_from(message_propagation.origin_position)
                 if prev_propagation < distance <= message_propagation.propagation:
                     message_to_receive[device_id].append(message_propagation.message)
+            if message_propagation.propagation <= self.range:
+                next_message_propagations.append(message_propagation)
+        self.message_propagations = next_message_propagations
 
         self.prev_timestamp = timestamp
         for device_id, messages in devices_messages_inserted.items():
