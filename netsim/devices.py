@@ -20,14 +20,15 @@ class BaseDevice(AbstractDevice):
         return {}, origin
 
 
-class StaticOriginBlackHoleDevice(BaseDevice):
-    pass
+class StaticPingDevice(BaseDevice):
+    def __init__(self, id_, channel_id, position: Position):
+        super(StaticPingDevice, self).__init__(id_)
 
+        self.channel_id = channel_id
+        self.position = position
 
-def StaticOriginPingDeviceFactory(channel_id: str):
-    class StaticOriginPingDevice(BaseDevice):
-        def step(self, timestamp: float, messages_received: MessagesDict) \
-                -> Tuple[MessagesDict, Position]:
-            return {channel_id: [0]}, origin
+    def step(self, timestamp: float, messages_received: MessagesDict) \
+            -> Tuple[MessagesDict, Position]:
+        print(messages_received)
 
-    return StaticOriginPingDevice
+        return {self.channel_id: ['ping']}, self.position
