@@ -32,6 +32,9 @@ class Position(object):
         self.x = x
         self.y = y
 
+    def __eq__(self, other: 'Position'):
+        return self.x == other.x and self.y == other.y
+
     def distance_from(self, other: 'Position'):
         return sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
 

@@ -26,9 +26,9 @@ class ImmediateIdentityChannel(BaseChannel):
     pass
 
 
-class PropagatingChannel(BaseChannel):
+class PropagatingIdentityChannel(BaseChannel):
     def __init__(self, id_, propagation_speed):
-        super(PropagatingChannel, self).__init__(id_)
+        super(PropagatingIdentityChannel, self).__init__(id_)
 
         self.propagation_speed = propagation_speed # type: float
         self.device_positions = {}  # type: Dict[str, Position]
