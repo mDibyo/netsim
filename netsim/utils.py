@@ -24,7 +24,7 @@ def dict_list_merge_update(d: DefaultDict[Any, list], other: Dict[Any, list]) \
     return d
 
 
-Message = object
+Message = dict
 
 
 class Position(object):
