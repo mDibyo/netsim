@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
 
-
+import json
 import unittest
-
+import random
+LIGHT_SPEED = 300000000
 from .context import netsim
+
+class GlobalLogger(object):
+    def __init__(self):
+        self.records = []
+
+    def log(self, record):
+        self.records.append(record)
+
+    def dump(self, filename):
+        with open(filename, 'w') as f:
+            json.dump(self.records, f)
 
 
 class TestPropagatingIdentityChannel(unittest.TestCase):
     def setUp(self):
-        self.propagation_speed = 2
+        self.propagation_speed = LIGHT_SPEED
         self.channel = netsim.PropagatingIdentityChannel('propagating_chan',
-                                                         self.propagation_speed)
+                                                         self.propagation_speed, 800)
 
     # def test_basic(self):
     #     device1 = netsim.StaticPingDevice('dev1', self.channel.id, netsim.Position(0, 0))
@@ -21,24 +33,35 @@ class TestPropagatingIdentityChannel(unittest.TestCase):
 
     def test_triangulating(self):
 
-        # device1 = netsim.StaticPingDevice('dev1', self.channel.id, netsim.Position(1, 2))
-        # device2 = netsim.StaticPingDevice('dev2', self.channel.id, netsim.Position(2, 3))
-        # device3 = netsim.StaticPingDevice('dev3', self.channel.id, netsim.Position(4, 4))
-        device1 = netsim.StaticPingDevice('dev1', self.channel.id, netsim.Position(-1, 0))
-        device2 = netsim.StaticPingDevice('dev2', self.channel.id, netsim.Position(1, 0))
-        device3 = netsim.StaticPingDevice('dev3', self.channel.id, netsim.Position(0, 1))
+        logger_t = GlobalLogger()
 
-        lt_device1 = \
-            netsim.StaticLocationTriangulatingDevice('lt_dev1', self.channel.id,
-                                                     netsim.Position(0, 0),
-                                                     self.propagation_speed)
+        try:
 
-        simulator = netsim.Simulator(0.001, [self.channel], [
-            device1,
-            device2,
-            device3,
-            lt_device1
-        ])
-        simulator.run(3)
+            device1 = netsim.StaticPingDevice('dev1', logger_t, self.channel.id, netsim.Position(100, 300))
+            device2 = netsim.StaticPingDevice('dev2', logger_t, self.channel.id, netsim.Position(200, 200))
+            device3 = netsim.StaticPingDevice('dev3', logger_t, self.channel.id, netsim.Position(0, 150))
+            device_list = [device1, device2, device3]
 
-        print(lt_device1.calculated_position)
+            for i in range(0,50):
+                lt_device1 = \
+                    netsim.StaticLocationTriangulatingDevice('lt_dev' + str(i), logger_t, self.channel.id,
+                                                             netsim.Position(random.random()*1000, random.random()*1000),
+                                                             self.propagation_speed)
+                device_list.append(lt_device1)
+
+            
+            simulator = netsim.Simulator(0.000000001, [self.channel], device_list)
+            simulator.run(0.000003)
+            logger_t.dump("hello1.txt")
+            simulator.run(0.000006)
+            logger_t.dump("hello2.txt")
+            simulator.run(0.000009)
+            logger_t.dump("hello3.txt")
+            simulator.run(0.000012)
+            logger_t.dump("hello4.txt")
+            simulator.run(0.00003)
+            logger_t.dump("hello5.txt")
+            simulator.run(0.00009)
+            logger_t.dump("hello6.txt")
+        finally:
+            logger_t.dump("hello.txt")

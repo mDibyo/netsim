@@ -68,7 +68,7 @@ class StaticLocationTriangulatingDevice(StaticPingDevice):
                                           (timestamp - message['timestamp']) * self.propagation_speed))
 
             if len(self.all_messages) >= 3:
-                if not self.triangulate_helper():
+                if not self.triangulate_helper(timestamp):
                     self.all_messages = []
                     self.saved_position_keys = set()
 
@@ -80,12 +80,20 @@ class StaticLocationTriangulatingDevice(StaticPingDevice):
 
         return {}, self.position
 
-    def triangulate_helper(self):
+    def triangulate_helper(self, timestamp):
         inputs = self.all_messages[:3]
         triangulate_result = triangulate(*inputs[0], *inputs[1], *inputs[2])
         # print('tr', triangulate_result)
         if triangulate_result != BAD_RESULT:
             self.calculated_position = triangulate_result
+            print (self.position.key())
+            print (self.calculated_position)
+            self.logger.log('\n\noriginal: ')
+            self.logger.log(str(self.position.key()))
+            self.logger.log(' | calculate: ')
+            self.logger.log(self.calculated_position)
+            self.logger.log(' | time: ')
+            self.logger.log(timestamp)
             return True
 
         return False
