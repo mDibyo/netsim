@@ -8,6 +8,7 @@ from math import sqrt
 
 EPSILON = 0.000001
 triangulate_output_format = 'INTERSECTION Circle1 AND Circle2 AND Circle3: ({}, {})'
+BAD_RESULT = None
 
 
 def triangulate(x0, y0, r0, x1, y1, r1, x2, y2, r2):
@@ -20,10 +21,10 @@ def triangulate(x0, y0, r0, x1, y1, r1, x2, y2, r2):
 
     # Check for solvability.
     if d > (r0 + r1):
-        return False
+        return BAD_RESULT
 
     if d < abs(r0 - r1):
-        return False
+        return BAD_RESULT
 
     a = ((r0*r0) - (r1*r1) + (d*d)) / (2.0 * d)
 
@@ -48,11 +49,11 @@ def triangulate(x0, y0, r0, x1, y1, r1, x2, y2, r2):
     d2 = sqrt((dy*dy) + (dx*dx))
 
     if abs(d1 - r2) < EPSILON:
-        print(triangulate_output_format.format(intersection_point1_x, intersection_point1_y))
+        return (intersection_point1_x, intersection_point1_y)
     elif abs(d2 - r2) < EPSILON:
-        print(triangulate_output_format.format(intersection_point2_x, intersection_point2_y))
+        return (intersection_point2_x, intersection_point2_y)
     else:
-        print(triangulate_output_format.format(None, None))
+        return BAD_RESULT
 
 
 triangulate(1, 1, 1.41421356237, 0, 1, 1, 1, 0, 1)
