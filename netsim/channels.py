@@ -3,6 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 from functools import reduce
+from typing import List, Dict
 
 from .utils import *
 
@@ -37,16 +38,13 @@ class PropagatingIdentityChannel(BaseChannel):
 
     def step(self, timestamp: float, devices_messages_inserted: MessagesDict,
              new_device_positions: Dict[str, Position]) -> MessagesDict:
-        old_device_locations = self.device_positions
-        self.device_positions = {}\
-            .update(old_device_locations)\
-            .update(old_device_locations)
+        self.device_positions.update(new_device_positions)
 
         message_to_receive = messages_dict()
         for message_propagation in self.message_propagations:
             prev_propagation = message_propagation.propagation
             message_propagation.step(timestamp)
-            for device_id, position in self.device_positions:
+            for device_id, position in self.device_positions.items():
                 distance = \
                     position.distance_from(message_propagation.origin_position)
                 if prev_propagation < distance <= message_propagation.propagation:

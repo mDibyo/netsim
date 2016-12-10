@@ -49,9 +49,9 @@ def triangulate(x0, y0, r0, x1, y1, r1, x2, y2, r2):
     d2 = sqrt((dy*dy) + (dx*dx))
 
     if abs(d1 - r2) < EPSILON:
-        return (intersection_point1_x, intersection_point1_y)
+        return intersection_point1_x, intersection_point1_y
     elif abs(d2 - r2) < EPSILON:
-        return (intersection_point2_x, intersection_point2_y)
+        return intersection_point2_x, intersection_point2_y
     else:
         return BAD_RESULT
 

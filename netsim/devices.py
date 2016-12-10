@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Tuple
 
 from .utils import *
-from .message_parser import triangulate
+from .message_parser import triangulate, BAD_RESULT
 
 
 class AbstractDevice(Identifiable, metaclass=ABCMeta):
@@ -30,9 +30,9 @@ class StaticPingDevice(BaseDevice):
 
     def step(self, timestamp: float, messages_received: MessagesDict) \
             -> Tuple[MessagesDict, Position]:
-        print(messages_received)
+        print(messages_received[self.channel_id])
 
-        return {}, self.position
+        return {self.channel_id: [{'timestamp': timestamp}]}, self.position
 
 
 class TriangulateLocationDevice(BaseDevice):
@@ -67,8 +67,8 @@ class TriangulateLocationDevice(BaseDevice):
             position = message['Position']
             r = (timestamp - message['timestamp']) / self.propagation_speed
             inputs.append([position.x, position.y, r])
-        triangulate_result = triangulate(*(inputs[0]+inputs[1]+inputs[2]))
-        if not triangulate_result:
+        triangulate_result = triangulate(*inputs[0], *inputs[1], inputs[2])
+        if triangulate_result != BAD_RESULT:
             self.location = triangulate_result
             return True
         else:

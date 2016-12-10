@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-from collections import defaultdict, Hashable, namedtuple
+from collections import defaultdict, Hashable
 from math import sqrt
 from typing import DefaultDict, Any, Dict, List
 
@@ -68,14 +68,15 @@ class MessagePropagation(object):
     def step(self, timestamp: float):
         self.propagation += (timestamp - self.timestamp) \
                             * self.propagation_speed
+        # print(self.propagation)
         self.timestamp = timestamp
 
 
 __all__ = [
-    Identifiable,
-    dict_list_merge_update,
-    Message,
-    Position, origin,
-    MessagesDict, messages_dict,
-    MessagePropagation
+    'Identifiable',
+    'dict_list_merge_update',
+    'Message',
+    'Position', 'origin',
+    'MessagesDict', 'messages_dict',
+    'MessagePropagation'
 ]
